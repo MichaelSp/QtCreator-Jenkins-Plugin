@@ -4,5 +4,6 @@
         <file>resources/grey-ball.png</file>
         <file>resources/red-ball.png</file>
         <file>resources/red-cross.png</file>
+        <file>resources/jenkins_logo.png</file>
     </qresource>
 </RCC>

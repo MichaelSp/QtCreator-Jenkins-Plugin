@@ -77,12 +77,6 @@ public:
                                  QObject *parent = 0);
     virtual ~JenkinsSettingsPage();
 
-    virtual QString id() const;
-    virtual QString displayName() const;
-    virtual QString category() const;
-    virtual QString displayCategory() const;
-            QIcon	categoryIcon() const;
-
     virtual QWidget *createPage(QWidget *parent);
     virtual void apply();
     virtual void finish() { }

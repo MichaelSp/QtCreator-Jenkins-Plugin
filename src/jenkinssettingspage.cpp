@@ -113,35 +113,15 @@ JenkinsSettingsPage::JenkinsSettingsPage(QSharedPointer<JenkinsSettings> &settin
     Core::IOptionsPage(parent),
     m_settings(settings)
 {
+    setId(Constants::JENKINS_SETTINGS_ID);
+    setCategory(Constants::JENKINS_SETTINGS_CATEGORY);
+    setDisplayName( tr("Jenkins", Constants::JENKINS_SETTINGS_ID));
+    setDisplayCategory( tr("Jenkins", Constants::JENKINS_SETTINGS_CATEGORY) );
+    setCategoryIcon(":/jenkins/resources/jenkins_logo.png");
 }
 
 JenkinsSettingsPage::~JenkinsSettingsPage()
 {
-}
-
-QString JenkinsSettingsPage::id() const
-{
-    return QLatin1String(Constants::JENKINS_SETTINGS_ID);
-}
-
-QString JenkinsSettingsPage::displayName() const
-{
-    return QCoreApplication::translate("Jenkins", Constants::JENKINS_SETTINGS_ID);
-}
-
-QString JenkinsSettingsPage::category() const
-{
-    return QLatin1String(Constants::JENKINS_SETTINGS_CATEGORY);
-}
-
-QString JenkinsSettingsPage::displayCategory() const
-{
-    return QCoreApplication::translate("Jenkins", Constants::JENKINS_SETTINGS_CATEGORY);
-}
-
-QIcon  JenkinsSettingsPage::categoryIcon() const
-{
-    return QIcon();
 }
 
 QWidget *JenkinsSettingsPage::createPage(QWidget *parent)

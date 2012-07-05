@@ -36,6 +36,9 @@
      <item row="1" column="1">
       <widget class="QSpinBox" name="refreshSpinBox">
        <property name="suffix">
+        <string> Seconds</string>
+       </property>
+       <property name="prefix">
         <string/>
        </property>
        <property name="minimum">
@@ -74,6 +77,30 @@
      </item>
      <item row="2" column="1" colspan="2">
       <widget class="QLineEdit" name="ignoreEdit"/>
+     </item>
+     <item row="3" column="0">
+      <widget class="QLabel" name="label_4">
+       <property name="text">
+        <string>Username:</string>
+       </property>
+      </widget>
+     </item>
+     <item row="4" column="0">
+      <widget class="QLabel" name="label_5">
+       <property name="text">
+        <string>Password:</string>
+       </property>
+      </widget>
+     </item>
+     <item row="3" column="1" colspan="2">
+      <widget class="QLineEdit" name="edtUsername"/>
+     </item>
+     <item row="4" column="1" colspan="2">
+      <widget class="QLineEdit" name="edtPassword">
+       <property name="echoMode">
+        <enum>QLineEdit::Password</enum>
+       </property>
+      </widget>
      </item>
     </layout>
    </item>

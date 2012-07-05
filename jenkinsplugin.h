@@ -52,7 +52,7 @@ public:
 private slots:
 
     void	refresh();
-    void	readFinished(bool error);
+    void	readFinished(bool error, const QString &message);
     void	openResults();
 
 private:

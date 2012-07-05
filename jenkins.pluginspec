@@ -2,10 +2,9 @@
     <vendor>CreatorPlugins</vendor>
     <copyright>David Dibben</copyright>
     <copyright>Michael Sprauer</copyright>
-  <license>
-  </license>
+    <license></license>
     <description>Jenkins plugin.</description>
-    <url></url>
+    <url>https://github.com/MichaelSp/QtCreator-Jenkins-Plugin</url>
     <dependencyList>
     <dependency name="Core"/>
     <dependency name="TextEditor"/>

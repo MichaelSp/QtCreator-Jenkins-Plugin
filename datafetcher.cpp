@@ -118,8 +118,9 @@ DataFetcher::DataFetcher(int maxItems, QObject *parent)
              this, SLOT(finished(int, bool)));
 }
 
-void DataFetcher::fetch(const QUrl &url)
+void DataFetcher::fetch(const QUrl &url, QString username, QString password)
 {
+    m_errorMessage = "fetching " + url.toString();
     m_xml.clear();
 
     if (!url.isValid()) {
@@ -151,18 +152,21 @@ void DataFetcher::fetch(const QUrl &url)
                     .arg(getOsString()).arg(QLocale::system().name())
                     .arg(QSysInfo::WordSize);
     QHttpRequestHeader header("GET", url.path());
-    //qDebug() << agentStr;
     header.setValue("User-Agent", agentStr);
     header.setValue("Host", url.host());
+    m_http.setUser( username, password );
     m_connectionId = m_http.request(header);
 }
 
 void DataFetcher::readData(const QHttpResponseHeader &resp)
 {
-    if (resp.statusCode() != 200)
+    if (resp.statusCode() != 200) {
+        m_errorMessage = "HTTP code : " + QString::number(resp.statusCode());
         m_http.abort();
+    }
     else {
-        m_xml.addData(m_http.readAll());
+        QString str = m_http.readAll();
+        m_xml.addData(str);
         parseXml();
     }
 }
@@ -172,51 +176,58 @@ void DataFetcher::finished(int id, bool error)
     Q_UNUSED(id)
     m_items = 0;
     m_xml.clear();
-    emit finished(error);
+    m_errorMessage = "HUFAHSUFHUSA";
+    emit finished(error, m_errorMessage);
+    m_errorMessage.clear();
 }
 
 
 void DataFetcher::parseXml()
 {
+    bool rootOK = false;
     while (!m_xml.atEnd()) {
         m_xml.readNext();
         if (m_xml.isStartElement()) {
-            if (m_xml.name() == "item") {
-                m_titleString.clear();
-                m_dateString.clear();
-                m_linkString.clear();
-                m_passed = true;
+            if (m_xml.name() == "hudson") {
+                rootOK = true;
             }
-            m_currentTag = m_xml.name().toString();
-        } else if (m_xml.isEndElement()) {
-            if (m_xml.name() == "item") {
-                m_items++;
-                if (m_items > m_maxItems)
-                    return;
-                emit projectItemReady(m_titleString, m_dateString, m_passed, m_linkString);
-            }
-
-        } else if (m_xml.isCharacters() && !m_xml.isWhitespace()) {
-            if (m_currentTag == "title") {
-                QString title = m_xml.text().toString();
-                int pos = title.toLower().indexOf("passed");
-                if (pos < 0) {
-                    pos = title.toLower().indexOf("failed");
-                }
-                m_titleString = (pos > 0 ? title.left(pos) : title).trimmed();
-            } else if (m_currentTag == "pubDate") {
-                m_dateString += m_xml.text().toString();
-            } else if (m_currentTag == "pubDate") {
-                    m_dateString += m_xml.text().toString();
-            } else if (m_currentTag == "description") {
-                m_passed = (m_xml.text().toString().toLower().indexOf("passed") > 0);
-            }else if (m_currentTag == "link") {
-                m_linkString += m_xml.text().toString();
-            }
+            if (rootOK && m_xml.name() == "job")
+                parseJob();
         }
     }
     if (m_xml.error() && m_xml.error() != QXmlStreamReader::PrematureEndOfDocumentError) {
-        qWarning() << "XML ERROR:" << m_xml.lineNumber() << ": " << m_xml.errorString();
+        m_errorMessage = "XML ERROR:" + QString::number( m_xml.lineNumber() ) + ": " + m_xml.errorString();
+        qWarning() << m_errorMessage;
         m_http.abort();
+    }
+}
+
+void DataFetcher::parseJob()
+{
+    while (!m_xml.atEnd() || m_xml.isEndElement() && m_xml.name() == "job") {
+        m_xml.readNext();
+        if (m_xml.isStartElement()) {
+            if (m_xml.name() == "name")
+                currentProject.name = m_xml.readElementText();
+            if (m_xml.name() == "url")
+                currentProject.link = m_xml.readElementText();
+            if (m_xml.name() == "color")
+                currentProject.color = m_xml.readElementText();
+            if (m_xml.name() == "healthReport")
+                parseProjectHealth();
+        }
+    }
+    emit projectItemReady(currentProject);
+    currentProject.clear();
+}
+
+void DataFetcher::parseProjectHealth()
+{
+    while (!m_xml.atEnd() || m_xml.isEndElement() && m_xml.name() == "healthReport") {
+        m_xml.readNext();
+        if (m_xml.isStartElement()) {
+            if (m_xml.name() == "score")
+                currentProject.healthInPercent = m_xml.readElementText().toInt();
+        }
     }
 }

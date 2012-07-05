@@ -31,46 +31,58 @@ namespace Internal {
 
 struct Project
 {
-	QString	name;
-	QString date;
-	bool passed;
-	QString link;
+    QString	name;
+    QString date;
+    QString color;
+    QString link;
+    int healthInPercent;
+    bool lastBuildOK;
+    void clear() {
+        name="";
+        date="";
+        color="red";
+        link="";
+        lastBuildOK=false;
+        healthInPercent=-1;
+    }
 };
 
 class Projects : public QObject
 {
 Q_OBJECT
 public:
-		Projects();
+        Projects();
 
-		bool	hasError() const;
-		bool	connectionError() const;
+        bool	hasError() const;
+        bool	connectionError() const;
+        QString connectionErrorMessage() const{return m_connectionError;}
 
-		int		size() const;
-		QString	name(int i) const;
-		QString	date(int i) const;
-		bool	passed(int i) const;
-		QString	link(int i) const;
+        int		size() const;
+        QString	name(int i) const;
+        int healthInPercent(int i)const;
+        bool	lastBuildOK(int i) const;
+        QString	link(int i) const;
 
-		void	setIgnored(const QString& list);
+        void	setIgnored(const QString& list);
 
-		QString	resultsUrl() const;
+        QString	resultsUrl() const;
 
 public slots:
 
-		void	setConnectionError(bool error);
-		void	add(const QString& name, const QString& date, bool passed, const QString& link);
-		void	clear();
+        void	setConnectionError(bool error, const QString &message);
+        void	add(const Project &newProject);
+        void	clear();
 
 signals:
 
-		void	projectsChanged();
+        void	projectsChanged();
 
 private:
 
-		QList<Project>	m_list;
-		bool			m_connectionError;
-		QSet<QString>	m_ignored;
+        QList<Project>	m_list;
+        bool			m_connectionError;
+        QString m_connectionErrorMessage;
+        QSet<QString>	m_ignored;
 };
 
 } // namespace Internal

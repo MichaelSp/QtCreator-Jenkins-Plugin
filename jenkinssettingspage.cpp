@@ -41,6 +41,9 @@ void JenkinsSettings::toSettings(QSettings *s) const
     s->setValue(QLatin1String(Constants::JENKINS_URL), url);
     s->setValue(QLatin1String(Constants::JENKINS_IGNORED), ignore);
     s->setValue(QLatin1String(Constants::JENKINS_REFRESH), refresh);
+    s->setValue(QLatin1String(Constants::JENKINS_USERNAME), username);
+    s->setValue(QLatin1String(Constants::JENKINS_PASSWORD), password);
+
     s->endGroup();
 }
 
@@ -50,6 +53,8 @@ void JenkinsSettings::fromSettings(QSettings *s)
     url= s->value(QLatin1String(Constants::JENKINS_URL), QLatin1String("")).toString();
     ignore = s->value(QLatin1String(Constants::JENKINS_IGNORED), QLatin1String("")).toString();
     refresh= s->value(QLatin1String(Constants::JENKINS_REFRESH), 360).toInt();
+    username = s->value(QLatin1String(Constants::JENKINS_USERNAME)).toString();
+    password = s->value(QLatin1String(Constants::JENKINS_PASSWORD)).toString();
     s->endGroup();
 }
 
@@ -59,7 +64,7 @@ bool JenkinsSettings::equals(const JenkinsSettings &rhs) const
     return (url == rhs.url && ignore == rhs.ignore && refresh == rhs.refresh);
 }
 
-// ------------------ CruiseControlSetingsWidget
+// ------------------ JenkinsSettingsWidget
 
 JenkinsSettingsWidget::JenkinsSettingsWidget(QWidget *parent) :
     QWidget(parent),
@@ -81,6 +86,8 @@ JenkinsSettings JenkinsSettingsWidget::settings() const
     rc.url = ui->urlEdit->text();
     rc.ignore = ui->ignoreEdit->text();
     rc.refresh = ui->refreshSpinBox->value();
+    rc.username = ui->edtUsername->text();
+    rc.password = ui->edtPassword->text();
     return rc;
 }
 
@@ -90,10 +97,12 @@ void JenkinsSettingsWidget::setSettings(const JenkinsSettings &s)
     ui->urlEdit->setText(s.url );
     ui->ignoreEdit->setText(s.ignore);
     ui->refreshSpinBox->setValue(s.refresh);
+    ui->edtUsername->setText(s.username);
+    ui->edtPassword->setText(s.password);
 }
 
 
-// --------------- CruiseControlSetingsPage
+// --------------- JenkinsSettingsPage
 
 JenkinsSettingsPage::JenkinsSettingsPage(QSharedPointer<JenkinsSettings> &settings,
                                          QObject *parent) :
@@ -153,4 +162,4 @@ void JenkinsSettingsPage::apply()
 
 
 } // namespace Internal
-} // namespace CruiseControl
+} // namespace Jenkins

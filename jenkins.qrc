@@ -1,5 +1,5 @@
 <RCC>
-    <qresource prefix="/cruisecontrol">
+    <qresource prefix="/jenkins">
         <file>resources/green-ball.png</file>
         <file>resources/grey-ball.png</file>
         <file>resources/red-ball.png</file>

@@ -54,15 +54,15 @@ using namespace Jenkins;
 using namespace Jenkins::Internal;
 
 JenkinsPlugin::JenkinsPlugin() :
-        m_settings(new JenkinsSettings),
-        m_projects(new Projects),
-        m_fetcher(new DataFetcher(20, this)),
-        m_timer(new QTimer(this))
+    m_settings(new JenkinsSettings),
+    m_projects(new Projects),
+    m_fetcher(new DataFetcher(20, this)),
+    m_timer(new QTimer(this))
 {
 
-    connect(m_fetcher, SIGNAL(finished(bool)), this, SLOT(readFinished(bool)));
-    connect(m_fetcher, SIGNAL(projectItemReady(QString,QString,bool,QString)),
-            m_projects, SLOT(add(QString,QString,bool,QString)));
+    connect(m_fetcher, SIGNAL(finished(bool,QString)), this, SLOT(readFinished(bool,QString)));
+    connect(m_fetcher, SIGNAL(projectItemReady(Project)),
+            m_projects, SLOT(add(Project)));
 
     connect(m_timer, SIGNAL(timeout()), this, SLOT(refresh()));
 
@@ -90,6 +90,8 @@ bool JenkinsPlugin::initialize(const QStringList &arguments, QString *error_mess
     connect(w, SIGNAL(refreshRequested()), this, SLOT(refresh()));
     connect(w, SIGNAL(doubleClicked()), this, SLOT(openResults()));
 
+    refresh();
+
     return true;
 }
 
@@ -100,13 +102,13 @@ void  JenkinsPlugin::refresh()
     m_timer->stop();
     m_projects->clear();
     m_projects->setIgnored(m_settings->ignore);
-    m_fetcher->fetch(QUrl(m_settings->url));
+    m_fetcher->fetch(QUrl(m_settings->url + "/api/xml?depth=1"), m_settings->username, m_settings->password);
 }
 
-void  JenkinsPlugin::readFinished(bool error)
+void  JenkinsPlugin::readFinished(bool error,const QString& message)
 {
     m_reading = false;
-    m_projects->setConnectionError(error);
+    m_projects->setConnectionError(error, message);
     int seconds = m_settings->refresh;
     if (seconds < 60) seconds = 60;
     m_timer->start(seconds * 1000);

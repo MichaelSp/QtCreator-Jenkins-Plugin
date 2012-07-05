@@ -6,6 +6,8 @@
 #include <QtCore/QXmlStreamReader>
 #include <QtNetwork/QHttp>
 
+#include "projects.h"
+
 namespace Jenkins {
 namespace Internal {
 
@@ -13,34 +15,33 @@ class DataFetcher : public QObject
 {
 Q_OBJECT
 public:
-	DataFetcher(int maxItems, QObject *parent = 0);
+    DataFetcher(int maxItems, QObject *parent = 0);
 
 signals:
 
-	void projectItemReady(const QString& title, const QString& date, bool passed, const QString& url);
+    void projectItemReady(const Project& proj);
 
 public slots:
-	void fetch(const QUrl &url);
-	void finished(int id, bool error);
-	void readData(const QHttpResponseHeader &);
+    void fetch(const QUrl &url, QString username=QString(), QString password=QString());
+    void finished(int id, bool error);
+    void readData(const QHttpResponseHeader &);
 
 signals:
-	void finished(bool error);
+    void finished(bool error,const QString& message);
 
 private:
-	void parseXml();
+    void parseXml();
+    void parseJob();
+    void parseProjectHealth();
 
-	QXmlStreamReader m_xml;
-	QString m_currentTag;
-	QString m_linkString;
-	QString m_titleString;
-	QString m_dateString;
-	bool m_passed;
+    QXmlStreamReader m_xml;
+    Project currentProject;
 
-	QHttp m_http;
-	int m_connectionId;
-	int m_items;
-	int m_maxItems;
+    QHttp m_http;
+    int m_connectionId;
+    int m_items;
+    int m_maxItems;
+    QString m_errorMessage;
 
 };
 

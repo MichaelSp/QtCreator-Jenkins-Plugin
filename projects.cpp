@@ -28,101 +28,98 @@ using namespace Jenkins::Internal;
 
 Projects::Projects()
 {
-	m_connectionError = false;
+    m_connectionError = false;
+    m_connectionErrorMessage = "";
 }
 
 bool Projects::hasError() const
 {
-	foreach (const Project& p, m_list) {
-		if (!p.passed) return true;
-	}
-	return false;
+    foreach (const Project& p, m_list) {
+        if (!p.lastBuildOK) return true;
+    }
+    return false;
 }
 
 bool Projects::connectionError() const
 {
-	return m_connectionError;
+    return m_connectionError;
 }
 
 int Projects::size() const
 {
-	return m_list.size();
+    return m_list.size();
 }
 
 QString Projects::name(int i) const
 {
-	if (i < 0  || i >= size()) return QString();
-	return m_list[i].name;
+    if (i < 0  || i >= size()) return QString();
+    return m_list[i].name;
 }
 
-QString Projects::date(int i) const
+int Projects::healthInPercent(int i) const
 {
-	if (i < 0  || i >= size()) return QString();
-	return m_list[i].date;
+    if (i < 0  || i >= size()) return -1;
+    return m_list[i].healthInPercent;
 }
 
-bool Projects::passed(int i) const
+bool Projects::lastBuildOK(int i) const
 {
-	if (i < 0  || i >= size()) return false;
-	return m_list[i].passed;
+    if (i < 0  || i >= size()) return false;
+    return m_list[i].lastBuildOK;
 }
 
 QString Projects::link(int i) const
 {
-	if (i < 0  || i >= size()) return QString();
-	return m_list[i].link;
+    if (i < 0  || i >= size()) return QString();
+    return m_list[i].link;
 }
 
 void Projects::setIgnored(const QString& list)
 {
-	m_ignored.clear();
-	QStringList items = list.split(",");
-	foreach (QString it, items){
-		it = it.trimmed();
-		m_ignored.insert(it);
-	}
+    m_ignored.clear();
+    QStringList items = list.split(",");
+    foreach (QString it, items){
+        it = it.trimmed();
+        m_ignored.insert(it);
+    }
 }
 
-void Projects::add(const QString& name, const QString& date, bool passed, const QString& link)
+void Projects::add(const Project& newProject)
 {
-	if (m_ignored.contains(name)) return;
+    if (m_ignored.contains(newProject.name)) return;
 
-	Project rec;
-	rec.name = name;
-	rec.date = date;
-	rec.passed = passed;
-	rec.link = link;
+    m_list.append(newProject);
 
-	m_list.append(rec);
-
-	emit projectsChanged();
+    emit projectsChanged();
 }
 
-void Projects::setConnectionError(bool error)
+void Projects::setConnectionError(bool error,const QString& message)
 {
-	m_connectionError = error;
-	emit projectsChanged();
+    m_connectionError = error;
+    m_connectionErrorMessage = message;
+    emit projectsChanged();
 }
 
 void Projects::clear()
 {
-	m_list.clear();
-	m_connectionError = false;
+    m_list.clear();
+    m_connectionError = false;
+    m_connectionErrorMessage.clear();
 
-	emit projectsChanged();
+    emit projectsChanged();
 }
 
 
 QString	Projects::resultsUrl() const
 {
-	if (size() == 0) return QString();
+    if (size() == 0) return QString();
 
-	QString linkstr = link(0);
+    QString linkstr = link(0);
 
-	//drop last 2 items from url
-	int pos = linkstr.lastIndexOf('/');
-	if (pos == -1) return QString();
-	pos = linkstr.lastIndexOf('/', pos - 1);
-	if (pos == -1) return QString();
-	return linkstr.left(pos);
+    //drop last 2 items from url
+    int pos = linkstr.lastIndexOf('/');
+    if (pos == -1) return QString();
+    pos = linkstr.lastIndexOf('/', pos - 1);
+    if (pos == -1) return QString();
+    return linkstr.left(pos);
 }

@@ -41,6 +41,8 @@ struct JenkinsSettings {
     QString url;
     QString ignore;
     int		refresh;
+    QString username;
+    QString password;
 
     void toSettings(QSettings *) const;
     void fromSettings(QSettings *);

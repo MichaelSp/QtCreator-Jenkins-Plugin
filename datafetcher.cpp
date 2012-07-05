@@ -31,6 +31,10 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include <QtGui/QLineEdit>
 #include <QtNetwork/QHttp>
 #include <QtNetwork/QNetworkProxyFactory>
+#include <QtNetwork/QNetworkRequest>
+#include <QtNetwork/QNetworkReply>
+#include <QAuthenticator>
+
 #include <app/app_version.h>
 
 #include <QFile>
@@ -111,20 +115,19 @@ static const QString getOsString()
 DataFetcher::DataFetcher(int maxItems, QObject *parent)
     : QObject(parent), m_items(0), m_maxItems(maxItems)
 {
-    connect(&m_http, SIGNAL(readyRead(const QHttpResponseHeader &)),
-             this, SLOT(readData(const QHttpResponseHeader &)));
-
-    connect(&m_http, SIGNAL(requestFinished(int, bool)),
-             this, SLOT(finished(int, bool)));
+    connect(&mNetworkAccess, SIGNAL(finished(QNetworkReply*)),
+            SLOT(finished(QNetworkReply*)));
 }
 
-void DataFetcher::fetch(const QUrl &url, QString username, QString password)
+void DataFetcher::fetch(QUrl url, QString username, QString password)
 {
     m_errorMessage = "fetching " + url.toString();
+    url.setUserName(username);
+    url.setPassword(password);
     m_xml.clear();
 
     if (!url.isValid()) {
-        finished(0, true);
+        emit finished(true, "invalid URL");
         return;
     }
 
@@ -134,49 +137,37 @@ void DataFetcher::fetch(const QUrl &url, QString username, QString password)
         if (file.open(QFile::ReadOnly)) {
             m_xml.addData(file.readAll());
             parseXml();
-            finished(0, false);
         } else {
-            finished(0, true);
+            emit finished(true, "Unable to read the file: " + filename);
         }
         file.close();
         return;
     }
 
-
-    QList<QNetworkProxy> proxies = QNetworkProxyFactory::systemProxyForQuery(QNetworkProxyQuery(url));
-    if (proxies.count() > 0)
-        m_http.setProxy(proxies.first());
-    m_http.setHost(url.host(), url.port());
-    QString agentStr = QString("Qt-Creator/%1 (QHttp %2; %3; %4; %5 bit)")
-                    .arg(Core::Constants::IDE_VERSION_LONG).arg(qVersion())
-                    .arg(getOsString()).arg(QLocale::system().name())
-                    .arg(QSysInfo::WordSize);
-    QHttpRequestHeader header("GET", url.path());
-    header.setValue("User-Agent", agentStr);
-    header.setValue("Host", url.host());
-    m_http.setUser( username, password );
-    m_connectionId = m_http.request(header);
+    QNetworkRequest request(url);
+    request.setRawHeader("User-Agent", QString("Qt-Creator/%1 (QHttp %2; %3; %4; %5 bit)")
+                         .arg(Core::Constants::IDE_VERSION_LONG).arg(qVersion())
+                         .arg(getOsString()).arg(QLocale::system().name())
+                         .arg(QSysInfo::WordSize).toLocal8Bit());
+    request.setRawHeader("Accept", "text/xml,application/xml; charset=UTF-8");
+    mNetworkAccess.proxyFactory()->setUseSystemConfiguration(true);
+    mNetworkAccess.get( request );
 }
 
-void DataFetcher::readData(const QHttpResponseHeader &resp)
+
+void DataFetcher::finished(QNetworkReply* repl)
 {
-    if (resp.statusCode() != 200) {
-        m_errorMessage = "HTTP code : " + QString::number(resp.statusCode());
-        m_http.abort();
+    m_xml.clear();
+
+    bool error = repl->error() != QNetworkReply::NoError;
+    if (error) {
+        m_errorMessage = "Error code (NOT HTTP-Code!) : " + QString::number(repl->error()) + "\n\t" + repl->errorString();
     }
     else {
-        QString str = m_http.readAll();
+        QString str = repl->readAll();
         m_xml.addData(str);
         parseXml();
     }
-}
-
-void DataFetcher::finished(int id, bool error)
-{
-    Q_UNUSED(id)
-    m_items = 0;
-    m_xml.clear();
-    m_errorMessage = "HUFAHSUFHUSA";
     emit finished(error, m_errorMessage);
     m_errorMessage.clear();
 }
@@ -198,7 +189,6 @@ void DataFetcher::parseXml()
     if (m_xml.error() && m_xml.error() != QXmlStreamReader::PrematureEndOfDocumentError) {
         m_errorMessage = "XML ERROR:" + QString::number( m_xml.lineNumber() ) + ": " + m_xml.errorString();
         qWarning() << m_errorMessage;
-        m_http.abort();
     }
 }
 

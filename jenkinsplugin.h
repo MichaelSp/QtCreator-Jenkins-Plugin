@@ -30,6 +30,10 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include <QStringList>
 #include <QTimer>
 
+namespace Core {
+class MessageManager;
+}
+
 namespace Jenkins {
 namespace Internal {
 
@@ -56,7 +60,7 @@ private slots:
     void	openResults();
 
 private:
-
+    Core::MessageManager * messageManager;
 
     QSharedPointer<JenkinsSettings>	m_settings;
     Projects*						m_projects;

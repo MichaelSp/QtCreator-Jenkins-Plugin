@@ -40,6 +40,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include <coreplugin/actionmanager/command.h>
 #include <coreplugin/icore.h>
 #include <coreplugin/modemanager.h>
+#include <coreplugin/messagemanager.h>
 
 #include <QtPlugin>
 #include <QAction>
@@ -90,13 +91,13 @@ bool JenkinsPlugin::initialize(const QStringList &arguments, QString *error_mess
     connect(w, SIGNAL(refreshRequested()), this, SLOT(refresh()));
     connect(w, SIGNAL(doubleClicked()), this, SLOT(openResults()));
 
-    refresh();
-
+    messageManager = core->messageManager()->instance();
     return true;
 }
 
 void  JenkinsPlugin::refresh()
 {
+    messageManager->printToOutputPane("Jenkins: refreshing", true);
     if (m_reading) return;
     m_reading = true;
     m_timer->stop();
@@ -107,6 +108,7 @@ void  JenkinsPlugin::refresh()
 
 void  JenkinsPlugin::readFinished(bool error,const QString& message)
 {
+    messageManager->printToOutputPane("Jenkins: read finished: " + message, true);
     m_reading = false;
     m_projects->setConnectionError(error, message);
     int seconds = m_settings->refresh;

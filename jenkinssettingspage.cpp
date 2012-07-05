@@ -61,7 +61,7 @@ void JenkinsSettings::fromSettings(QSettings *s)
 
 bool JenkinsSettings::equals(const JenkinsSettings &rhs) const
 {
-    return (url == rhs.url && ignore == rhs.ignore && refresh == rhs.refresh);
+    return (url == rhs.url && ignore == rhs.ignore && refresh == rhs.refresh && username == rhs.username && password == rhs.password);
 }
 
 // ------------------ JenkinsSettingsWidget
@@ -88,6 +88,10 @@ JenkinsSettings JenkinsSettingsWidget::settings() const
     rc.refresh = ui->refreshSpinBox->value();
     rc.username = ui->edtUsername->text();
     rc.password = ui->edtPassword->text();
+
+    // remove trailing '/'
+    if (rc.url.at(rc.url.size()-1) == '/')
+        rc.url = rc.url.left(rc.url.size()-1);
     return rc;
 }
 

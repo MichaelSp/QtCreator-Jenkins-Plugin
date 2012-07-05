@@ -4,7 +4,7 @@
 #include <QObject>
 #include <QtCore/QUrl>
 #include <QtCore/QXmlStreamReader>
-#include <QtNetwork/QHttp>
+#include <QtNetwork/QNetworkAccessManager>
 
 #include "projects.h"
 
@@ -22,12 +22,11 @@ signals:
     void projectItemReady(const Project& proj);
 
 public slots:
-    void fetch(const QUrl &url, QString username=QString(), QString password=QString());
-    void finished(int id, bool error);
-    void readData(const QHttpResponseHeader &);
+    void fetch(QUrl url, QString username=QString(), QString password=QString());
+    void finished(QNetworkReply* repl);
 
 signals:
-    void finished(bool error,const QString& message);
+    void finished(bool error, QString message);
 
 private:
     void parseXml();
@@ -37,11 +36,11 @@ private:
     QXmlStreamReader m_xml;
     Project currentProject;
 
-    QHttp m_http;
-    int m_connectionId;
+    QNetworkAccessManager mNetworkAccess;
+    QString m_errorMessage;
+
     int m_items;
     int m_maxItems;
-    QString m_errorMessage;
 
 };
 

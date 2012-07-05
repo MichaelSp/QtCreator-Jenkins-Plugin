@@ -132,7 +132,7 @@ QString	DisplayWidget::tooltipText() const
 
         rc +="<tr>";
         rc += QString("<td><font color=\"%1\">%2</font></td>").arg(color).arg(m_projects->name(i));
-        rc += QString("<td><font color=\"%1\">%2</font></td>").arg(color).arg(m_projects->healthInPercent(i));
+        rc += QString("<td><font color=\"%1\">Project Health %2%</font></td>").arg(color).arg(m_projects->healthInPercent(i));
         rc +="</tr>\n";
     }
     rc +="</table>\n";

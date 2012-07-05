@@ -19,21 +19,21 @@ include($$IDE_SOURCE_TREE/src/plugins/coreplugin/coreplugin.pri)
 include($$IDE_SOURCE_TREE/src/plugins/texteditor/texteditor.pri)
 
 
-SOURCES += jenkinssettingspage.cpp \
-    displaywidget.cpp \
-    projects.cpp \
-    datafetcher.cpp \
-    jenkinsplugin.cpp
+SOURCES += src/jenkinssettingspage.cpp \
+    src/displaywidget.cpp \
+    src/projects.cpp \
+    src/datafetcher.cpp \
+    src/jenkinsplugin.cpp
 
-HEADERS += jenkinsplugin.h \
-    jenkinssettingspage.h \
-    jenkinsconstants.h \
-    displaywidget.h \
-    projects.h \
-    datafetcher.h
+HEADERS += src/jenkinsplugin.h \
+    src/jenkinssettingspage.h \
+    src/jenkinsconstants.h \
+    src/displaywidget.h \
+    src/projects.h \
+    src/datafetcher.h
 
 FORMS += \
-    jenkinssettingspage.ui
+    src/jenkinssettingspage.ui
 
 RESOURCES += \
     jenkins.qrc

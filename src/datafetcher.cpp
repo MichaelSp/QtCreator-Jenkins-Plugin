@@ -27,6 +27,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include <QtCore/QDebug>
 #include <QtCore/QSysInfo>
 #include <QtCore/QLocale>
+#include <QtCore/QDateTime>
 #include <QtGui/QDesktopServices>
 #include <QtGui/QLineEdit>
 #include <QtNetwork/QHttp>
@@ -119,12 +120,12 @@ DataFetcher::DataFetcher(int maxItems, QObject *parent)
             SLOT(finished(QNetworkReply*)));
 }
 
-void DataFetcher::fetch(QUrl url, QString username, QString password)
+void DataFetcher::fetch(QString urlString, QString username, QString password)
 {
-    m_errorMessage = "fetching " + url.toString();
+    QUrl url = QUrl::fromUserInput(urlString + "/api/xml?depth=2");
+    m_errorMessage = "fetching " + url.toString() + "\n";
     url.setUserName(username);
     url.setPassword(password);
-    m_xml.clear();
 
     if (!url.isValid()) {
         emit finished(true, "invalid URL");
@@ -135,8 +136,7 @@ void DataFetcher::fetch(QUrl url, QString username, QString password)
         QString filename = url.toLocalFile();
         QFile file(filename);
         if (file.open(QFile::ReadOnly)) {
-            m_xml.addData(file.readAll());
-            parseXml();
+            parseXml(QXmlStreamReader(file.readAll()));
         } else {
             emit finished(true, "Unable to read the file: " + filename);
         }
@@ -157,67 +157,96 @@ void DataFetcher::fetch(QUrl url, QString username, QString password)
 
 void DataFetcher::finished(QNetworkReply* repl)
 {
-    m_xml.clear();
-
     bool error = repl->error() != QNetworkReply::NoError;
     if (error) {
-        m_errorMessage = "Error code (NOT HTTP-Code!) : " + QString::number(repl->error()) + "\n\t" + repl->errorString();
+        m_errorMessage = "Error code (NOT HTTP-Code!) : " + QString::number(repl->error()) + "\n\t" + repl->errorString() +"\n";
     }
     else {
-        QString str = repl->readAll();
-        m_xml.addData(str);
-        parseXml();
+        parseXml(QXmlStreamReader(repl->readAll()));
     }
     emit finished(error, m_errorMessage);
     m_errorMessage.clear();
 }
 
+bool endOfElement(QString elemName,QXmlStreamReader &xml)
+{
+ return (xml.isEndElement() && xml.name() == elemName);
+}
 
-void DataFetcher::parseXml()
+void readUntilEndOf(QString elem, QXmlStreamReader &xml) {
+    while (!(xml.error() || xml.atEnd() || endOfElement("job",xml)))
+        xml.readNext();
+}
+
+void DataFetcher::parseXml(QXmlStreamReader &xml)
 {
     bool rootOK = false;
-    while (!m_xml.atEnd()) {
-        m_xml.readNext();
-        if (m_xml.isStartElement()) {
-            if (m_xml.name() == "hudson") {
+    while (!(xml.atEnd() || xml.error())) {
+        if (xml.readNext() == QXmlStreamReader::StartElement) {
+            if (xml.name() == "hudson")
                 rootOK = true;
-            }
-            if (rootOK && m_xml.name() == "job")
-                parseJob();
+            else if (rootOK && xml.name() == "job")
+                parseJob(xml);
+            else
+                xml.skipCurrentElement();
         }
     }
-    if (m_xml.error() && m_xml.error() != QXmlStreamReader::PrematureEndOfDocumentError) {
-        m_errorMessage = "XML ERROR:" + QString::number( m_xml.lineNumber() ) + ": " + m_xml.errorString();
+    if (xml.error()) {
+        m_errorMessage += "XML ERROR:" + QString::number( xml.lineNumber() ) + ": " + xml.errorString();
         qWarning() << m_errorMessage;
     }
 }
 
-void DataFetcher::parseJob()
+
+void DataFetcher::parseJob(QXmlStreamReader &xml)
 {
-    while (!m_xml.atEnd() || m_xml.isEndElement() && m_xml.name() == "job") {
-        m_xml.readNext();
-        if (m_xml.isStartElement()) {
-            if (m_xml.name() == "name")
-                currentProject.name = m_xml.readElementText();
-            if (m_xml.name() == "url")
-                currentProject.link = m_xml.readElementText();
-            if (m_xml.name() == "color")
-                currentProject.color = m_xml.readElementText();
-            if (m_xml.name() == "healthReport")
-                parseProjectHealth();
+    currentProject.clear();
+    while (!(xml.error() || xml.atEnd() || endOfElement("job",xml)))
+    {
+        if (xml.readNextStartElement())
+        {
+            if (xml.name() == "name")
+                currentProject.name = xml.readElementText();
+            else if (xml.name() == "url")
+                currentProject.link = xml.readElementText();
+            else if (xml.name() == "color")
+                currentProject.color = xml.readElementText();
+            else if (xml.name() == "healthReport")
+                parseProjectHealth(xml);
+            else if (xml.name() == "lastBuild")
+                parseLastBuild(xml);
+            else
+                xml.skipCurrentElement();
         }
     }
     emit projectItemReady(currentProject);
-    currentProject.clear();
+}
+void DataFetcher::parseProjectHealth(QXmlStreamReader &xml)
+{
+    while (!(xml.error() || xml.atEnd() || endOfElement("healthReport",xml)))
+    {
+        if (xml.readNextStartElement()) {
+            if (xml.name() == "score")
+                currentProject.healthInPercent = xml.readElementText().toInt();
+            else
+                xml.skipCurrentElement();
+        }
+    }
 }
 
-void DataFetcher::parseProjectHealth()
+void DataFetcher::parseLastBuild(QXmlStreamReader &xml)
 {
-    while (!m_xml.atEnd() || m_xml.isEndElement() && m_xml.name() == "healthReport") {
-        m_xml.readNext();
-        if (m_xml.isStartElement()) {
-            if (m_xml.name() == "score")
-                currentProject.healthInPercent = m_xml.readElementText().toInt();
+    while (!(xml.error() || xml.atEnd() || endOfElement("lastBuild",xml)))
+    {
+        if (xml.readNextStartElement()) {
+            if (xml.name() == "userName")
+                currentProject.lastBuildUsername = xml.readElementText();
+            if (xml.name() == "timestamp") {
+                qulonglong timestamp= ((qulonglong)xml.readElementText().toULongLong());
+                currentProject.date = QDateTime::fromMSecsSinceEpoch( timestamp ).toString(Qt::SystemLocaleLongDate);
+            }
+            if (xml.name() == "result")
+                currentProject.lastBuildOK = xml.readElementText() == "SUCCESS";
         }
     }
 }

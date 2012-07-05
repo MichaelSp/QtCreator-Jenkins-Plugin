@@ -35,6 +35,7 @@ struct Project
     QString date;
     QString color;
     QString link;
+    QString lastBuildUsername;
     int healthInPercent;
     bool lastBuildOK;
     void clear() {
@@ -44,6 +45,7 @@ struct Project
         link="";
         lastBuildOK=false;
         healthInPercent=-1;
+        lastBuildUsername="";
     }
 };
 
@@ -58,14 +60,9 @@ public:
         QString connectionErrorMessage() const{return m_connectionError;}
 
         int		size() const;
-        QString	name(int i) const;
-        int healthInPercent(int i)const;
-        bool	lastBuildOK(int i) const;
-        QString	link(int i) const;
+        Project	project(int i) const;
 
         void	setIgnored(const QString& list);
-
-        QString	resultsUrl() const;
 
 public slots:
 

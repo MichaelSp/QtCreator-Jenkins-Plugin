@@ -126,13 +126,21 @@ QString	DisplayWidget::tooltipText() const
     }
 
     QString rc;
-    rc +="<table width=\"300\">\n";
+    rc +="<table width=\"600\">\n<tr>";
+    rc += QString("<td>Project Name</td>");
+    rc += QString("<td>Project Health</td>");
+    rc += QString("<td>Last Build Date</td>");
+    rc += QString("<td>Last Build User</td>");
+    rc +="</tr>\n";
     for (int i = 0 ; i < numProjects; i++) {
-        QString color = m_projects->lastBuildOK(i) ? "green" : "red";
+        Project proj = m_projects->project(i);
+        QString color = proj.lastBuildOK ? "green" : "red";
 
         rc +="<tr>";
-        rc += QString("<td><font color=\"%1\">%2</font></td>").arg(color).arg(m_projects->name(i));
-        rc += QString("<td><font color=\"%1\">Project Health %2%</font></td>").arg(color).arg(m_projects->healthInPercent(i));
+        rc += QString("<td><font color=\"%1\">%2</font></td>").arg(proj.color).arg(proj.name);
+        rc += QString("<td><font color=\"%1\">%2%</font></td>").arg(color).arg(proj.healthInPercent);
+        rc += QString("<td><font color=\"%1\">%2</font></td>").arg(color).arg(proj.date);
+        rc += QString("<td><font color=\"%1\">%2</font></td>").arg(color).arg(proj.lastBuildUsername);
         rc +="</tr>\n";
     }
     rc +="</table>\n";

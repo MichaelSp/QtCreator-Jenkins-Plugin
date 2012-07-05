@@ -22,18 +22,18 @@ signals:
     void projectItemReady(const Project& proj);
 
 public slots:
-    void fetch(QUrl url, QString username=QString(), QString password=QString());
+    void fetch(QString urlString, QString username=QString(), QString password=QString());
     void finished(QNetworkReply* repl);
 
 signals:
     void finished(bool error, QString message);
 
 private:
-    void parseXml();
-    void parseJob();
-    void parseProjectHealth();
+    void parseXml(QXmlStreamReader &xml);
+    void parseJob(QXmlStreamReader &xml);
+    void parseProjectHealth(QXmlStreamReader &xml);
+    void parseLastBuild(QXmlStreamReader &xml);
 
-    QXmlStreamReader m_xml;
     Project currentProject;
 
     QNetworkAccessManager mNetworkAccess;

@@ -103,12 +103,12 @@ void  JenkinsPlugin::refresh()
     m_timer->stop();
     m_projects->clear();
     m_projects->setIgnored(m_settings->ignore);
-    m_fetcher->fetch(QUrl(m_settings->url + "/api/xml?depth=1"), m_settings->username, m_settings->password);
+    m_fetcher->fetch(m_settings->url, m_settings->username, m_settings->password);
 }
 
 void  JenkinsPlugin::readFinished(bool error,const QString& message)
 {
-    messageManager->printToOutputPane("Jenkins: read finished: " + message, true);
+    messageManager->printToOutputPane("Jenkins: read finished: " + message, false);
     m_reading = false;
     m_projects->setConnectionError(error, message);
     int seconds = m_settings->refresh;
@@ -118,7 +118,8 @@ void  JenkinsPlugin::readFinished(bool error,const QString& message)
 
 void JenkinsPlugin::openResults()
 {
-    QString url = m_projects->resultsUrl();
+    if (m_projects->size() <= 0) return;
+    QString url = m_projects->project(0).link;
     if (url.isEmpty()) return;
 
     QDesktopServices::openUrl(url);

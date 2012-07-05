@@ -3,7 +3,7 @@
     <copyright>David Dibben</copyright>
     <copyright>Michael Sprauer</copyright>
     <license>		  GNU LESSER GENERAL PUBLIC LICENSE
-		       Version 2.1, February 1999
+           Version 2.1, February 1999
 
  Copyright (C) 1991, 1999 Free Software Foundation, Inc.
  51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
@@ -14,7 +14,7 @@
  as the successor of the GNU Library Public License, version 2, hence
  the version number 2.1.]
 
-			    Preamble
+          Preamble
 
   The licenses for most software are designed to take away your
 freedom to share and change it.  By contrast, the GNU General Public
@@ -116,7 +116,7 @@ modification follow.  Pay close attention to the difference between a
 former contains code derived from the library, whereas the latter must
 be combined with the library in order to run.
 
-		  GNU LESSER GENERAL PUBLIC LICENSE
+      GNU LESSER GENERAL PUBLIC LICENSE
    TERMS AND CONDITIONS FOR COPYING, DISTRIBUTION AND MODIFICATION
 
   0. This License Agreement applies to any software library or other
@@ -436,7 +436,7 @@ decision will be guided by the two goals of preserving the free status
 of all derivatives of our free software and of promoting the sharing
 and reuse of software generally.
 
-			    NO WARRANTY
+          NO WARRANTY
 
   15. BECAUSE THE LIBRARY IS LICENSED FREE OF CHARGE, THERE IS NO
 WARRANTY FOR THE LIBRARY, TO THE EXTENT PERMITTED BY APPLICABLE LAW.
@@ -459,7 +459,7 @@ FAILURE OF THE LIBRARY TO OPERATE WITH ANY OTHER SOFTWARE), EVEN IF
 SUCH HOLDER OR OTHER PARTY HAS BEEN ADVISED OF THE POSSIBILITY OF SUCH
 DAMAGES.
 
-		     END OF TERMS AND CONDITIONS
+         END OF TERMS AND CONDITIONS
 
            How to Apply These Terms to Your New Libraries
 
@@ -474,8 +474,8 @@ safest to attach them to the start of each source file to most effectively
 convey the exclusion of warranty; and each file should have at least the
 "copyright" line and a pointer to where the full notice is found.
 
-    <one line to give the library's name and a brief idea of what it does.>
-    Copyright (C) <year>  <name of author>
+    &lt;one line to give the library's name and a brief idea of what it does.>
+    Copyright (C) &lt;year&gt;  &lt;name of author&gt;
 
     This library is free software; you can redistribute it and/or
     modify it under the terms of the GNU Lesser General Public
@@ -500,7 +500,7 @@ necessary.  Here is a sample; alter the names:
   Yoyodyne, Inc., hereby disclaims all copyright interest in the
   library `Frob' (a library for tweaking knobs) written by James Random Hacker.
 
-  <signature of Ty Coon>, 1 April 1990
+  &lt;signature of Ty Coon&gt;, 1 April 1990
   Ty Coon, President of Vice
 
 That's all there is to it!
@@ -508,7 +508,7 @@ That's all there is to it!
     <description>Jenkins plugin to show the status of the builds.</description>
     <url>https://github.com/MichaelSp/QtCreator-Jenkins-Plugin</url>
     <dependencyList>
-		<dependency name="Core"/>
-		<dependency name="TextEditor"/>
+    <dependency name="Core"/>
+    <dependency name="TextEditor"/>
     </dependencyList>
 </plugin>

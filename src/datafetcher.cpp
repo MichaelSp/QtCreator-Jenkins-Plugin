@@ -150,6 +150,7 @@ void DataFetcher::fetch(QString urlString, QString username, QString password)
                          .arg(getOsString()).arg(QLocale::system().name())
                          .arg(QSysInfo::WordSize).toLocal8Bit());
     request.setRawHeader("Accept", "text/xml,application/xml; charset=UTF-8");
+    request.setRawHeader("Authorization", "Basic " + QByteArray(QString("%1:%2").arg(username).arg(password).toAscii()).toBase64());
     mNetworkAccess.proxyFactory()->setUseSystemConfiguration(true);
     mNetworkAccess.get( request );
 }

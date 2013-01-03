@@ -136,7 +136,8 @@ void DataFetcher::fetch(QString urlString, QString username, QString password)
         QString filename = url.toLocalFile();
         QFile file(filename);
         if (file.open(QFile::ReadOnly)) {
-            parseXml(QXmlStreamReader(file.readAll()));
+            QXmlStreamReader xmlReader(file.readAll());
+            parseXml(xmlReader);
         } else {
             emit finished(true, "Unable to read the file: " + filename);
         }
@@ -163,7 +164,8 @@ void DataFetcher::finished(QNetworkReply* repl)
         m_errorMessage = "Error code (NOT HTTP-Code!) : " + QString::number(repl->error()) + "\n\t" + repl->errorString() +"\n";
     }
     else {
-        parseXml(QXmlStreamReader(repl->readAll()));
+        QXmlStreamReader xmlReader(repl->readAll());
+        parseXml(xmlReader);
     }
     emit finished(error, m_errorMessage);
     m_errorMessage.clear();
@@ -174,7 +176,7 @@ bool endOfElement(QString elemName,QXmlStreamReader &xml)
  return (xml.isEndElement() && xml.name() == elemName);
 }
 
-void readUntilEndOf(QString elem, QXmlStreamReader &xml) {
+void readUntilEndOf(QString /*elem*/, QXmlStreamReader &xml) {
     while (!(xml.error() || xml.atEnd() || endOfElement("job",xml)))
         xml.readNext();
 }

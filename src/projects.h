@@ -57,7 +57,7 @@ public:
 
         bool	hasError() const;
         bool	connectionError() const;
-        QString connectionErrorMessage() const{return m_connectionError;}
+        QString connectionErrorMessage() const{return m_connectionErrorMessage;}
 
         int		size() const;
         Project	project(int i) const;

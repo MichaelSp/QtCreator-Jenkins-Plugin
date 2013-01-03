@@ -176,7 +176,7 @@ bool endOfElement(QString elemName,QXmlStreamReader &xml)
  return (xml.isEndElement() && xml.name() == elemName);
 }
 
-void readUntilEndOf(QString elem, QXmlStreamReader &xml) {
+void readUntilEndOf(QString /*elem*/, QXmlStreamReader &xml) {
     while (!(xml.error() || xml.atEnd() || endOfElement("job",xml)))
         xml.readNext();
 }

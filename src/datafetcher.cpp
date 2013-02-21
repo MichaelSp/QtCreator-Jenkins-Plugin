@@ -104,7 +104,7 @@ static const QString getOsString()
     struct utsname uts;
     if (uname(&uts) == 0)
         osString += QString("%1 %2").arg(QLatin1String(uts.sysname))
-                        .arg(QLatin1String(uts.release));
+                .arg(QLatin1String(uts.release));
     else
         osString += QLatin1String("Unix (Unknown)");
 #else
@@ -122,11 +122,23 @@ DataFetcher::DataFetcher(int maxItems, QObject *parent)
 
 void DataFetcher::fetch(QString urlString, QString username, QString password)
 {
-	QUrl url = QUrl::fromUserInput(urlString + "/api/xml?depth=2");
-    m_errorMessage = "fetching " + url.toString() + "\n";
+    QUrl url = QUrl::fromUserInput(urlString + "/api/xml?depth=2");
     url.setUserName(username);
     url.setPassword(password);
+    fetch(url);
+}
 
+void DataFetcher::fetchQueue(QString urlString, QString username, QString password)
+{
+    QUrl url = QUrl::fromUserInput(urlString + "/queue/api/xml");
+    url.setUserName(username);
+    url.setPassword(password);
+    fetch(url);
+}
+
+void DataFetcher::fetch(QUrl &url)
+{
+    m_errorMessage = "fetching " + url.toString() + "\n";
     if (!url.isValid()) {
         emit finished(true, "invalid URL");
         return;
@@ -151,54 +163,17 @@ void DataFetcher::fetch(QString urlString, QString username, QString password)
                          .arg(getOsString()).arg(QLocale::system().name())
                          .arg(QSysInfo::WordSize).toLocal8Bit());
     request.setRawHeader("Accept", "text/xml,application/xml; charset=UTF-8");
-	if(username.length() > 0)
-		request.setRawHeader("Authorization", "Basic " + QByteArray(QString("%1:%2").arg(username).arg(password).toAscii()).toBase64());
+    if(!url.userName().isEmpty())
+        request.setRawHeader("Authorization", "Basic " + QByteArray(QString("%1:%2").arg(url.userName()).arg(url.password()).toAscii()).toBase64());
     mNetworkAccess.proxyFactory()->setUseSystemConfiguration(true);
     mNetworkAccess.get( request );
-}
-
-void DataFetcher::fetchQueue(QString urlString, QString username, QString password)
-{
-	QUrl url = QUrl::fromUserInput(urlString + "/queue/api/xml");
-	m_errorMessage = "fetching " + url.toString() + "\n";
-	url.setUserName(username);
-	url.setPassword(password);
-
-	if (!url.isValid()) {
-		emit finished(true, "invalid URL");
-		return;
-	}
-
-	if (url.scheme() == "file") {
-		QString filename = url.toLocalFile();
-		QFile file(filename);
-		if (file.open(QFile::ReadOnly)) {
-			QXmlStreamReader xmlReader(file.readAll());
-			parseXml(xmlReader);
-		} else {
-			emit finished(true, "Unable to read the file: " + filename);
-		}
-		file.close();
-		return;
-	}
-
-	QNetworkRequest request(url);
-	request.setRawHeader("User-Agent", QString("Qt-Creator/%1 (QHttp %2; %3; %4; %5 bit)")
-						 .arg(Core::Constants::IDE_VERSION_LONG).arg(qVersion())
-						 .arg(getOsString()).arg(QLocale::system().name())
-						 .arg(QSysInfo::WordSize).toLocal8Bit());
-	request.setRawHeader("Accept", "text/xml,application/xml; charset=UTF-8");
-	if(username.length() > 0)
-		request.setRawHeader("Authorization", "Basic " + QByteArray(QString("%1:%2").arg(username).arg(password).toAscii()).toBase64());
-	mNetworkAccess.proxyFactory()->setUseSystemConfiguration(true);
-	mNetworkAccess.get( request );
 }
 
 void DataFetcher::finished(QNetworkReply* repl)
 {
     bool error = repl->error() != QNetworkReply::NoError;
     if (error) {
-		m_errorMessage = "Error code (NOT HTTP-Code!) : " + QString::number(repl->error()) + " / HTTP code " + repl->attribute(QNetworkRequest::HttpStatusCodeAttribute).toString() +" \n\t" + repl->errorString() +"\n";
+        m_errorMessage = "Error code (NOT HTTP-Code!) : " + QString::number(repl->error()) + " / HTTP code " + repl->attribute(QNetworkRequest::HttpStatusCodeAttribute).toString() +" \n\t" + repl->errorString() +"\n";
     }
     else {
         QXmlStreamReader xmlReader(repl->readAll());
@@ -210,7 +185,7 @@ void DataFetcher::finished(QNetworkReply* repl)
 
 bool endOfElement(QString elemName,QXmlStreamReader &xml)
 {
- return (xml.isEndElement() && xml.name() == elemName);
+    return (xml.isEndElement() && xml.name() == elemName);
 }
 
 void readUntilEndOf(QString /*elem*/, QXmlStreamReader &xml) {
@@ -223,12 +198,12 @@ void DataFetcher::parseXml(QXmlStreamReader &xml)
     bool rootOK = false;
     while (!(xml.atEnd() || xml.error())) {
         if (xml.readNext() == QXmlStreamReader::StartElement) {
-			if (xml.name() == "hudson" || xml.name() == "queue")
+            if (xml.name() == "hudson" || xml.name() == "queue")
                 rootOK = true;
             else if (rootOK && xml.name() == "job")
                 parseJob(xml);
-			else if (rootOK && xml.name() == "item")
-				parseItem(xml);
+            else if (rootOK && xml.name() == "item")
+                parseItem(xml);
             else
                 xml.skipCurrentElement();
         }
@@ -295,52 +270,52 @@ void DataFetcher::parseLastBuild(QXmlStreamReader &xml)
 
 void DataFetcher::parseItem(QXmlStreamReader &xml)
 {
-	currentProject.clear();
-	while (!(xml.error() || xml.atEnd() || endOfElement("item",xml)))
-	{
-		if (xml.readNextStartElement())
-		{
-			if (xml.name() == "blocked")
-				currentItem.blocked = xml.readElementText() == "true" ? true : false;
-			else if (xml.name() == "buildable")
-				currentItem.buildable = xml.readElementText() == "true" ? true : false;
-			else if (xml.name() == "stuck")
-				currentItem.stuck = xml.readElementText() == "true" ? true : false;
-			else if (xml.name() == "why")
-				currentItem.why = xml.readElementText();
-			else if (xml.name() == "action")
-				parseItemAction(xml);
-			else if (xml.name() == "task")
-				parseItemTask(xml);
-			else
-				xml.skipCurrentElement();
-		}
-	}
-	emit queueItemReady(currentItem);
+    currentProject.clear();
+    while (!(xml.error() || xml.atEnd() || endOfElement("item",xml)))
+    {
+        if (xml.readNextStartElement())
+        {
+            if (xml.name() == "blocked")
+                currentItem.blocked = xml.readElementText() == "true" ? true : false;
+            else if (xml.name() == "buildable")
+                currentItem.buildable = xml.readElementText() == "true" ? true : false;
+            else if (xml.name() == "stuck")
+                currentItem.stuck = xml.readElementText() == "true" ? true : false;
+            else if (xml.name() == "why")
+                currentItem.why = xml.readElementText();
+            else if (xml.name() == "action")
+                parseItemAction(xml);
+            else if (xml.name() == "task")
+                parseItemTask(xml);
+            else
+                xml.skipCurrentElement();
+        }
+    }
+    emit queueItemReady(currentItem);
 }
 void DataFetcher::parseItemAction(QXmlStreamReader &xml)
 {
-	while (!(xml.error() || xml.atEnd() || endOfElement("action",xml)))
-	{
-		if (xml.readNextStartElement()) {
-			if(xml.name() == "cause" && xml.readNextStartElement()) {
-				if(xml.name() == "shortDescription")
-					currentItem.cause = xml.readElementText();
-			}
-		}
-	}
+    while (!(xml.error() || xml.atEnd() || endOfElement("action",xml)))
+    {
+        if (xml.readNextStartElement()) {
+            if(xml.name() == "cause" && xml.readNextStartElement()) {
+                if(xml.name() == "shortDescription")
+                    currentItem.cause = xml.readElementText();
+            }
+        }
+    }
 }
 void DataFetcher::parseItemTask(QXmlStreamReader &xml)
 {
-	while (!(xml.error() || xml.atEnd() || endOfElement("task",xml)))
-	{
-		if (xml.readNextStartElement()) {
-			if(xml.name() == "name") {
-				currentItem.task = xml.readElementText();
-			}
-			if(xml.name() == "color") {
-				currentItem.color = xml.readElementText();
-			}
-		}
-	}
+    while (!(xml.error() || xml.atEnd() || endOfElement("task",xml)))
+    {
+        if (xml.readNextStartElement()) {
+            if(xml.name() == "name") {
+                currentItem.task = xml.readElementText();
+            }
+            if(xml.name() == "color") {
+                currentItem.color = xml.readElementText();
+            }
+        }
+    }
 }

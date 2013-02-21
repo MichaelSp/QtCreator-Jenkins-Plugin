@@ -23,7 +23,8 @@ signals:
 
 public slots:
     void fetch(QString urlString, QString username=QString(), QString password=QString());
-	void fetchQueue(QString urlString, QString username=QString(), QString password=QString());
+    void fetchQueue(QString urlString, QString username=QString(), QString password=QString());
+    void fetch(QUrl &url);
     void finished(QNetworkReply* repl);
 
 signals:

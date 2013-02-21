@@ -14,7 +14,7 @@ isEmpty(IDE_BUILD_TREE):IDE_BUILD_TREE=C:/dev/Libs/QtSDK/QtSources/qtcreator-bui
 
 DESTDIR = $$IDE_BUILD_TREE/lib/qtcreator/plugins/$$PROVIDER
 
-LIBS += -L$$IDE_BUILD_TREE/bin/lib/qtcreator -L$$IDE_BUILD_TREE/lib/qtcreator/plugins/Nokia
+LIBS += -L$$IDE_BUILD_TREE/lib/qtcreator/plugins/Nokia
 
 include($$IDE_SOURCE_TREE/src/qtcreatorplugin.pri)
 include($$IDE_SOURCE_TREE/src/plugins/coreplugin/coreplugin.pri)

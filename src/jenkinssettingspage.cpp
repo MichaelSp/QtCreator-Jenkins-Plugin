@@ -113,11 +113,6 @@ JenkinsSettingsPage::JenkinsSettingsPage(QSharedPointer<JenkinsSettings> &settin
     Core::IOptionsPage(parent),
     m_settings(settings)
 {
-   /*setId(Constants::JENKINS_SETTINGS_ID);
-    setCategory(Constants::JENKINS_SETTINGS_CATEGORY);
-    setDisplayName( tr("Jenkins", Constants::JENKINS_SETTINGS_ID));
-    setDisplayCategory( tr("Jenkins", Constants::JENKINS_SETTINGS_CATEGORY) );
-    setCategoryIcon(":/jenkins/resources/jenkins_logo.png");*/
 }
 
 QString JenkinsSettingsPage::id() const

@@ -36,7 +36,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include <QtNetwork/QNetworkReply>
 #include <QAuthenticator>
 
-#include "/home/hgiraud/Dev/qt-creator-2.4.1-src/src/app/app_version.h"
+#include <app/app_version.h>
 
 #include <QFile>
 

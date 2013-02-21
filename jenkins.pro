@@ -7,14 +7,16 @@ PROVIDER = CreatorPlugins
 
 DEFINES += JENKINSPLUGIN_LIBRARY
 
-IDE_SOURCE_TREE = /home/hgiraud/Dev/qt-creator-2.4.1-src/src
-IDE_BUILD_TREE = /home/hgiraud/Dev/qt-creator-2.4.1-src/bin
+IDE_SOURCE_TREE = $$(QTC_SOURCE)
+IDE_BUILD_TREE = $$(QTC_BUILD)
+isEmpty(IDE_SOURCE_TREE):IDE_SOURCE_TREE=C:/dev/Libs/QtSDK/QtSources/qt-creator
+isEmpty(IDE_BUILD_TREE):IDE_BUILD_TREE=C:/dev/Libs/QtSDK/QtSources/qtcreator-build-desktop
 
-DESTDIR = .
+DESTDIR = $$IDE_BUILD_TREE/lib/qtcreator/plugins/$$PROVIDER
 
-LIBS += -L/home/hgiraud/Dev/qt-creator-2.4.1-src/lib/qtcreator -L/home/hgiraud/Dev/qt-creator-2.4.1-src/lib/qtcreator/plugins/Nokia
+LIBS += -L$$IDE_BUILD_TREE/bin/lib/qtcreator -L$$IDE_BUILD_TREE/lib/qtcreator/plugins/Nokia
 
-include($$IDE_SOURCE_TREE/qtcreatorplugin.pri)
+include($$IDE_SOURCE_TREE/src/qtcreatorplugin.pri)
 include($$IDE_SOURCE_TREE/src/plugins/coreplugin/coreplugin.pri)
 include($$IDE_SOURCE_TREE/src/plugins/texteditor/texteditor.pri)
 

@@ -113,11 +113,36 @@ JenkinsSettingsPage::JenkinsSettingsPage(QSharedPointer<JenkinsSettings> &settin
     Core::IOptionsPage(parent),
     m_settings(settings)
 {
-    setId(Constants::JENKINS_SETTINGS_ID);
+   /*setId(Constants::JENKINS_SETTINGS_ID);
     setCategory(Constants::JENKINS_SETTINGS_CATEGORY);
     setDisplayName( tr("Jenkins", Constants::JENKINS_SETTINGS_ID));
     setDisplayCategory( tr("Jenkins", Constants::JENKINS_SETTINGS_CATEGORY) );
-    setCategoryIcon(":/jenkins/resources/jenkins_logo.png");
+    setCategoryIcon(":/jenkins/resources/jenkins_logo.png");*/
+}
+
+QString JenkinsSettingsPage::id() const
+{
+    return Constants::JENKINS_SETTINGS_ID;
+}
+
+QString JenkinsSettingsPage::displayName() const
+{
+    return tr("Jenkins", Constants::JENKINS_SETTINGS_ID);
+}
+
+QString JenkinsSettingsPage::category() const
+{
+    return QLatin1String(Constants::JENKINS_SETTINGS_CATEGORY);
+}
+
+QString JenkinsSettingsPage::displayCategory() const
+{
+    return tr("Jenkins", Constants::JENKINS_SETTINGS_CATEGORY);
+}
+
+QIcon JenkinsSettingsPage::categoryIcon() const
+{
+    return QIcon(":/jenkins/resources/jenkins_logo.png");
 }
 
 JenkinsSettingsPage::~JenkinsSettingsPage()

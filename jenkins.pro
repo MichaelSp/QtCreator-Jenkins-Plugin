@@ -3,18 +3,18 @@ TEMPLATE = lib
 QT += xml network
 
 TARGET = Jenkins
-PROVIDER = CreatorPlugins
+PROVIDER = Nokia
 
 DEFINES += JENKINSPLUGIN_LIBRARY
 
-IDE_SOURCE_TREE = C:/dev/Libs/QtSDK/QtSources/qt-creator
-IDE_BUILD_TREE = C:/dev/Libs/QtSDK/QtSources/qtcreator-build-desktop
+IDE_SOURCE_TREE = /home/hgiraud/Dev/qt-creator-2.4.1-src/src
+IDE_BUILD_TREE = /home/hgiraud/Dev/qt-creator-2.4.1-src/bin
 
-DESTDIR = $$IDE_BUILD_TREE/lib/qtcreator/plugins/$$PROVIDER
+DESTDIR = .
 
-LIBS += -L$$IDE_BUILD_TREE/lib/qtcreator/plugins/Nokia
+LIBS += -L/home/hgiraud/Dev/qt-creator-2.4.1-src/lib/qtcreator -L/home/hgiraud/Dev/qt-creator-2.4.1-src/lib/qtcreator/plugins/Nokia
 
-include($$IDE_SOURCE_TREE/src/qtcreatorplugin.pri)
+include($$IDE_SOURCE_TREE/qtcreatorplugin.pri)
 include($$IDE_SOURCE_TREE/src/plugins/coreplugin/coreplugin.pri)
 include($$IDE_SOURCE_TREE/src/plugins/texteditor/texteditor.pri)
 

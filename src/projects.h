@@ -24,6 +24,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include <QObject>
 #include <QList>
 #include <QString>
+#include <QDateTime>
 #include <QSet>
 
 namespace Jenkins {
@@ -49,6 +50,20 @@ struct Project
     }
 };
 
+struct Item
+{
+	QString why;
+	QString task;
+	QString color;
+	QString cause;
+
+	QDateTime inQueueSince;
+
+	bool stuck;
+	bool blocked;
+	bool buildable;
+};
+
 class Projects : public QObject
 {
 Q_OBJECT
@@ -62,21 +77,27 @@ public:
         int		size() const;
         Project	project(int i) const;
 
+		int		queueSize() const;
+		Item	item(int i) const;
+
         void	setIgnored(const QString& list);
 
 public slots:
 
         void	setConnectionError(bool error, const QString &message);
         void	add(const Project &newProject);
+		void	add(const Item &newItem);
         void	clear();
 
 signals:
 
         void	projectsChanged();
+		void	queueChanged();
 
 private:
 
         QList<Project>	m_list;
+		QList<Item>		m_queueList;
         bool			m_connectionError;
         QString m_connectionErrorMessage;
         QSet<QString>	m_ignored;

@@ -18,11 +18,12 @@ public:
     DataFetcher(int maxItems, QObject *parent = 0);
 
 signals:
-
+	void queueItemReady(const Item& item);
     void projectItemReady(const Project& proj);
 
 public slots:
     void fetch(QString urlString, QString username=QString(), QString password=QString());
+	void fetchQueue(QString urlString, QString username=QString(), QString password=QString());
     void finished(QNetworkReply* repl);
 
 signals:
@@ -30,11 +31,17 @@ signals:
 
 private:
     void parseXml(QXmlStreamReader &xml);
+
     void parseJob(QXmlStreamReader &xml);
     void parseProjectHealth(QXmlStreamReader &xml);
     void parseLastBuild(QXmlStreamReader &xml);
 
+	void parseItem(QXmlStreamReader &xml);
+	void parseItemTask(QXmlStreamReader &xml);
+	void parseItemAction(QXmlStreamReader &xml);
+
     Project currentProject;
+	Item currentItem;
 
     QNetworkAccessManager mNetworkAccess;
     QString m_errorMessage;

@@ -57,6 +57,7 @@ private:
 	QLabel	*m_errorIcon;
 	QLabel	*m_passIcon;
 	QLabel	*m_noConnectionIcon;
+	QLabel  *m_queue;
 	Projects *m_projects;
 };
 

@@ -31,6 +31,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 #include <QHelpEvent>
 #include <QToolTip>
 #include <QAction>
+#include <QApplication>
 
 using namespace Jenkins;
 using namespace Jenkins::Internal;
@@ -41,8 +42,13 @@ DisplayWidget::DisplayWidget(Projects* projects) :
     m_errorIcon(new QLabel(this)),
     m_passIcon(new QLabel(this)),
     m_noConnectionIcon(new QLabel(this)),
+	m_queue(new QLabel(this)),
     m_projects(projects)
 {
+	QFont font = QApplication::font();
+	font.setWeight( 10 );
+	m_queue->setFont( font );
+	m_queue->setStyleSheet("color: white;");
 
     setContextMenuPolicy(Qt::ActionsContextMenu);
 
@@ -57,7 +63,9 @@ DisplayWidget::DisplayWidget(Projects* projects) :
     errorLayout->addWidget(m_errorIcon);
     errorLayout->addWidget(m_noConnectionIcon);
     errorLayout->addWidget(m_passIcon);
-    errorLayout->addStretch(2);
+	errorLayout->addStretch(1);
+	errorLayout->addWidget(m_queue);
+	errorLayout->addStretch(2);
 
 
     m_errorIcon->setAlignment(Qt::AlignCenter);
@@ -68,6 +76,7 @@ DisplayWidget::DisplayWidget(Projects* projects) :
     m_passIcon->setPixmap(QPixmap(":/jenkins/resources/green-ball.png"));
 
     connect(m_projects, SIGNAL(projectsChanged()), this, SLOT(updateState()));
+	connect(m_projects, SIGNAL(queueChanged()), this, SLOT(updateState()));
 
     QAction* refresh = new QAction(tr("Refresh"),this);
     connect(refresh, SIGNAL(triggered()), this, SIGNAL(refreshRequested()));
@@ -84,6 +93,7 @@ void DisplayWidget::updateState()
         m_noConnectionIcon->setHidden(false);
         m_errorIcon->setHidden(true);
         m_passIcon->setHidden(true);
+		m_queue->setHidden(true);
     } else {
         m_noConnectionIcon->setHidden(true);
         m_errorIcon->setHidden(false);
@@ -92,6 +102,9 @@ void DisplayWidget::updateState()
         int numProjects = m_projects->size();
         m_passIcon->setEnabled(!error && numProjects > 0);
         m_errorIcon->setEnabled(error && numProjects > 0);
+		int queue = m_projects->queueSize();
+		m_queue->setEnabled( true );
+		m_queue->setText( QString::number(queue) );
     }
 }
 
@@ -126,7 +139,32 @@ QString	DisplayWidget::tooltipText() const
     }
 
     QString rc;
-    rc +="<table width=\"600\">\n<tr>";
+
+	if(m_projects->queueSize())
+	{
+		rc += "<table width=\"600\">\n";
+		rc += "<caption>Current builds</caption>\n";
+		rc += "<tr><td>Project Name</td>";
+		rc += "<td>Why</td>";
+		rc += "<td>Blocked</td>";
+		rc += "<td>Buildable</td>";
+		rc +="</tr>\n";
+		for (int i = 0 ; i < m_projects->queueSize(); i++) {
+			Item item = m_projects->item(i);
+
+			rc +="<tr>";
+
+			rc += QString("<td>%1</td>").arg(item.task);
+			rc += QString("<td>%1</td>").arg(item.why);
+			rc += QString("<td>%1</td>").arg(item.blocked ? "Yes" : "No");
+			rc += QString("<td>%1</td>").arg(item.buildable ? "Yes" : "No");
+
+			rc += "</tr>";
+		}
+		rc += "</table>";
+	}
+
+	rc +="<table width=\"600\">\n<tr>";
     rc += QString("<td>Project Name</td>");
     rc += QString("<td>Project Health</td>");
     rc += QString("<td>Last Build Date</td>");

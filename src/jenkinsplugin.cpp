@@ -64,6 +64,8 @@ JenkinsPlugin::JenkinsPlugin() :
     connect(m_fetcher, SIGNAL(finished(bool,QString)), this, SLOT(readFinished(bool,QString)));
     connect(m_fetcher, SIGNAL(projectItemReady(Project)),
             m_projects, SLOT(add(Project)));
+	connect(m_fetcher, SIGNAL(queueItemReady(Item)),
+			m_projects, SLOT(add(Item)));
 
     connect(m_timer, SIGNAL(timeout()), this, SLOT(refresh()));
 
@@ -104,6 +106,7 @@ void  JenkinsPlugin::refresh()
     m_projects->clear();
     m_projects->setIgnored(m_settings->ignore);
     m_fetcher->fetch(m_settings->url, m_settings->username, m_settings->password);
+	m_fetcher->fetchQueue(m_settings->url, m_settings->username, m_settings->password);
 }
 
 void  JenkinsPlugin::readFinished(bool error,const QString& message)

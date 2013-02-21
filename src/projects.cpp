@@ -50,10 +50,21 @@ int Projects::size() const
     return m_list.size();
 }
 
+int Projects::queueSize() const
+{
+	return m_queueList.size();
+}
+
 Project Projects::project(int i) const
 {
     if (i < 0  || i >= size()) return Project();
     return m_list[i];
+}
+
+Item Projects::item(int i) const
+{
+	if (i < 0  || i >= queueSize()) return Item();
+	return m_queueList[i];
 }
 
 void Projects::setIgnored(const QString& list)
@@ -75,6 +86,13 @@ void Projects::add(const Project& newProject)
     emit projectsChanged();
 }
 
+void Projects::add(const Item& newItem)
+{
+	m_queueList.append(newItem);
+
+	emit queueChanged();
+}
+
 void Projects::setConnectionError(bool error,const QString& message)
 {
     m_connectionError = error;
@@ -85,6 +103,7 @@ void Projects::setConnectionError(bool error,const QString& message)
 void Projects::clear()
 {
     m_list.clear();
+	m_queueList.clear();
     m_connectionError = false;
     m_connectionErrorMessage.clear();
 

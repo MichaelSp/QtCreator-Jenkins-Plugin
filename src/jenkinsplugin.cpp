@@ -82,24 +82,21 @@ bool JenkinsPlugin::initialize(const QStringList &arguments, QString *error_mess
     Q_UNUSED(arguments);
     Q_UNUSED(error_message);
 
-    Core::ICore *core = Core::ICore::instance();
-
     JenkinsSettingsPage* page = new JenkinsSettingsPage(m_settings);
     addAutoReleasedObject(page);
     connect(page, SIGNAL(settingsUpdated()), this, SLOT(refresh()));
 
     DisplayWidget* w = new DisplayWidget(m_projects);
-    core->modeManager()->addWidget(w);
+    Core::ModeManager::addWidget(w);
     connect(w, SIGNAL(refreshRequested()), this, SLOT(refresh()));
     connect(w, SIGNAL(doubleClicked()), this, SLOT(openResults()));
 
-    messageManager = core->messageManager()->instance();
     return true;
 }
 
 void  JenkinsPlugin::refresh()
 {
-    messageManager->printToOutputPane("Jenkins: refreshing", true);
+    Core::MessageManager::write(QLatin1String("Jenkins: refreshing"), Core::MessageManager::ModeSwitch);
     if (m_reading) return;
     m_reading = true;
     m_timer->stop();
@@ -111,7 +108,7 @@ void  JenkinsPlugin::refresh()
 
 void  JenkinsPlugin::readFinished(bool error,const QString& message)
 {
-    messageManager->printToOutputPane("Jenkins: read finished: " + message, false);
+    Core::MessageManager::write(QLatin1String("Jenkins: read finished: ") + message);
     m_reading = false;
     m_projects->setConnectionError(error, message);
     int seconds = m_settings->refresh;
@@ -142,5 +139,3 @@ void JenkinsPlugin::shutdown()
 
 
 Q_EXPORT_PLUGIN(JenkinsPlugin)
-
-

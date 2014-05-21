@@ -90,7 +90,7 @@ JenkinsSettings JenkinsSettingsWidget::settings() const
     rc.password = ui->edtPassword->text();
 
     // remove trailing '/'
-    if (rc.url.at(rc.url.size()-1) == '/')
+    if (rc.url.at(rc.url.size()-1) == QLatin1Char('/'))
         rc.url = rc.url.left(rc.url.size()-1);
     return rc;
 }
@@ -117,19 +117,11 @@ JenkinsSettingsPage::JenkinsSettingsPage(QSharedPointer<JenkinsSettings> &settin
     setCategory(Constants::JENKINS_SETTINGS_CATEGORY);
     setDisplayName( tr("Jenkins", Constants::JENKINS_SETTINGS_ID));
     setDisplayCategory( tr("Jenkins", Constants::JENKINS_SETTINGS_CATEGORY) );
-    setCategoryIcon(":/jenkins/resources/jenkins_logo.png");
+    setCategoryIcon(QLatin1String(":/jenkins/resources/jenkins_logo.png"));
 }
 
 JenkinsSettingsPage::~JenkinsSettingsPage()
 {
-}
-
-QWidget *JenkinsSettingsPage::createPage(QWidget *parent)
-{
-
-    m_widget = new JenkinsSettingsWidget(parent);
-    m_widget->setSettings(*m_settings);
-    return m_widget;
 }
 
 void JenkinsSettingsPage::apply()
@@ -144,6 +136,14 @@ void JenkinsSettingsPage::apply()
     }
 }
 
+QWidget *JenkinsSettingsPage::widget()
+{
+	if (m_widget)
+		return m_widget;
+	m_widget = new JenkinsSettingsWidget;
+    m_widget->setSettings(*m_settings);
+    return m_widget;
+}
 
 } // namespace Internal
 } // namespace Jenkins

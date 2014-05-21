@@ -40,13 +40,13 @@ struct Project
     int healthInPercent;
     bool lastBuildOK;
     void clear() {
-        name="";
-        date="";
-        color="red";
-        link="";
+        name.clear();
+        date.clear();
+        color = QLatin1String("red");
+        link.clear();
         lastBuildOK=false;
         healthInPercent=-1;
-        lastBuildUsername="";
+        lastBuildUsername.clear();
     }
 };
 

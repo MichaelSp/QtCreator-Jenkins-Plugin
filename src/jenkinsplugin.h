@@ -44,6 +44,8 @@ class JenkinsPlugin  : public ExtensionSystem::IPlugin
 {
     Q_OBJECT
 
+	Q_PLUGIN_METADATA(IID "org.qt-project.Qt.QtCreatorPlugin" FILE "Jenkins.json")
+
 public:
     JenkinsPlugin();
     ~JenkinsPlugin();
@@ -60,8 +62,6 @@ private slots:
     void	openResults();
 
 private:
-    Core::MessageManager * messageManager;
-
     QSharedPointer<JenkinsSettings>	m_settings;
     Projects*						m_projects;
     DataFetcher*					m_fetcher;

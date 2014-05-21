@@ -1,0 +1,11 @@
+<plugin name=\"Jenkins\" version=\"$$QTCREATOR_VERSION\" compatVersion=\"$$QTCREATOR_COMPAT_VERSION\">
+    <vendor>CreatorPlugins</vendor>
+    <copyright>David Dibben</copyright>
+    <copyright>Michael Sprauer</copyright>
+    <license>
+This plugin may be used under the terms of the GNU Lesser General Public License version 2.1 as published by the Free Software Foundation.  Please review the following information to ensure the GNU Lesser General Public License version 2.1 requirements will be met: http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html.
+    </license>
+    <description>Jenkins plugin to show the status of the builds.</description>
+    <url>https://github.com/MichaelSp/QtCreator-Jenkins-Plugin</url>
+    $$dependencyList
+</plugin>

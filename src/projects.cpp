@@ -29,7 +29,7 @@ using namespace Jenkins::Internal;
 Projects::Projects()
 {
     m_connectionError = false;
-    m_connectionErrorMessage = "";
+    m_connectionErrorMessage.clear();
 }
 
 bool Projects::hasError() const
@@ -70,7 +70,7 @@ Item Projects::item(int i) const
 void Projects::setIgnored(const QString& list)
 {
     m_ignored.clear();
-    QStringList items = list.split(",");
+    QStringList items = list.split(QLatin1String(","));
     foreach (QString it, items){
         it = it.trimmed();
         m_ignored.insert(it);

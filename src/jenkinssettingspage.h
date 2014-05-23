@@ -75,15 +75,14 @@ class JenkinsSettingsPage : public Core::IOptionsPage
 public:
     explicit JenkinsSettingsPage(QSharedPointer<JenkinsSettings> &settings,
                                  QObject *parent = 0);
-    virtual ~JenkinsSettingsPage();
+    ~JenkinsSettingsPage();
 
-    virtual QWidget *createPage(QWidget *parent);
-    virtual void apply();
-    virtual void finish() { }
+    void apply();
+    void finish() { }
+    QWidget *widget();
 
 signals:
-
-    void	settingsUpdated();
+    void settingsUpdated();
 
 private:
     const QSharedPointer<JenkinsSettings> m_settings;

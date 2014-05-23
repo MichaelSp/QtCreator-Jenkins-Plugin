@@ -24,10 +24,10 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include <QWidget>
 
-#include <QtGui/QVBoxLayout>
-#include <QtGui/QHBoxLayout>
-#include <QtGui/QFont>
-#include <QtGui/QPixmap>
+#include <QVBoxLayout>
+#include <QHBoxLayout>
+#include <QFont>
+#include <QPixmap>
 #include <QHelpEvent>
 #include <QToolTip>
 #include <QAction>
@@ -48,7 +48,7 @@ DisplayWidget::DisplayWidget(Projects* projects) :
 	QFont font = QApplication::font();
 	font.setWeight( 10 );
 	m_queue->setFont( font );
-	m_queue->setStyleSheet("color: white;");
+	m_queue->setStyleSheet(QLatin1String("color: white;"));
 
     setContextMenuPolicy(Qt::ActionsContextMenu);
 
@@ -71,9 +71,9 @@ DisplayWidget::DisplayWidget(Projects* projects) :
     m_errorIcon->setAlignment(Qt::AlignCenter);
     m_passIcon->setAlignment(Qt::AlignLeft);
 
-    m_errorIcon->setPixmap(QPixmap(":/jenkins/resources/red-ball.png"));
-    m_noConnectionIcon->setPixmap(QPixmap(":/jenkins/resources/red-cross.png"));
-    m_passIcon->setPixmap(QPixmap(":/jenkins/resources/green-ball.png"));
+    m_errorIcon->setPixmap(QPixmap(QLatin1String(":/jenkins/resources/red-ball.png")));
+    m_noConnectionIcon->setPixmap(QPixmap(QLatin1String(":/jenkins/resources/red-cross.png")));
+    m_passIcon->setPixmap(QPixmap(QLatin1String(":/jenkins/resources/green-ball.png")));
 
     connect(m_projects, SIGNAL(projectsChanged()), this, SLOT(updateState()));
 	connect(m_projects, SIGNAL(queueChanged()), this, SLOT(updateState()));
@@ -127,7 +127,7 @@ void DisplayWidget::mouseDoubleClickEvent(QMouseEvent * event)
 
 QString	DisplayWidget::tooltipText() const
 {
-    if (m_projects == 0) return "";
+    if (m_projects == 0) return QString();
 
     if (m_projects->connectionError()) {
         return QString(tr("Cannot connect to server: ")) + m_projects->connectionErrorMessage();
@@ -142,46 +142,46 @@ QString	DisplayWidget::tooltipText() const
 
 	if(m_projects->queueSize())
 	{
-		rc += "<table width=\"600\">\n";
-		rc += "<caption>Current builds</caption>\n";
-		rc += "<tr><td>Project Name</td>";
-		rc += "<td>Why</td>";
-		rc += "<td>Blocked</td>";
-		rc += "<td>Buildable</td>";
-		rc +="</tr>\n";
+		rc += QLatin1String("<table width=\"600\">\n");
+		rc += QLatin1String("<caption>Current builds</caption>\n");
+		rc += QLatin1String("<tr><td>Project Name</td>");
+		rc += QLatin1String("<td>Why</td>");
+		rc += QLatin1String("<td>Blocked</td>");
+		rc += QLatin1String("<td>Buildable</td>");
+		rc += QLatin1String("</tr>\n");
 		for (int i = 0 ; i < m_projects->queueSize(); i++) {
 			Item item = m_projects->item(i);
 
-			rc +="<tr>";
+			rc += QLatin1String("<tr>");
 
-			rc += QString("<td>%1</td>").arg(item.task);
-			rc += QString("<td>%1</td>").arg(item.why);
-			rc += QString("<td>%1</td>").arg(item.blocked ? "Yes" : "No");
-			rc += QString("<td>%1</td>").arg(item.buildable ? "Yes" : "No");
+			rc += QString::fromLatin1("<td>%1</td>").arg(item.task);
+			rc += QString::fromLatin1("<td>%1</td>").arg(item.why);
+			rc += QString::fromLatin1("<td>%1</td>").arg(QLatin1String(item.blocked ? "Yes" : "No"));
+			rc += QString::fromLatin1("<td>%1</td>").arg(QLatin1String(item.buildable ? "Yes" : "No"));
 
-			rc += "</tr>";
+			rc += QLatin1String("</tr>");
 		}
-		rc += "</table>";
+		rc += QLatin1String("</table>");
 	}
 
-	rc +="<table width=\"600\">\n<tr>";
-    rc += QString("<td>Project Name</td>");
-    rc += QString("<td>Project Health</td>");
-    rc += QString("<td>Last Build Date</td>");
-    rc += QString("<td>Last Build User</td>");
-    rc +="</tr>\n";
+	rc +=QLatin1String("<table width=\"600\">\n<tr>");
+    rc += QString(QLatin1String("<td>Project Name</td>"));
+    rc += QString(QLatin1String("<td>Project Health</td>"));
+    rc += QString(QLatin1String("<td>Last Build Date</td>"));
+    rc += QString(QLatin1String("<td>Last Build User</td>"));
+    rc += QLatin1String("</tr>\n");
     for (int i = 0 ; i < numProjects; i++) {
         Project proj = m_projects->project(i);
-        QString color = proj.lastBuildOK ? "green" : "red";
+        QString color = QLatin1String(proj.lastBuildOK ? "green" : "red");
 
-        rc +="<tr>";
-        rc += QString("<td><font color=\"%1\">%2</font></td>").arg(proj.color).arg(proj.name);
-        rc += QString("<td><font color=\"%1\">%2%</font></td>").arg(color).arg(proj.healthInPercent);
-        rc += QString("<td><font color=\"%1\">%2</font></td>").arg(color).arg(proj.date);
-        rc += QString("<td><font color=\"%1\">%2</font></td>").arg(color).arg(proj.lastBuildUsername);
-        rc +="</tr>\n";
+        rc +=QLatin1String("<tr>");
+        rc += QString::fromLatin1("<td><font color=\"%1\">%2</font></td>").arg(proj.color).arg(proj.name);
+        rc += QString::fromLatin1("<td><font color=\"%1\">%2%</font></td>").arg(color).arg(proj.healthInPercent);
+        rc += QString::fromLatin1("<td><font color=\"%1\">%2</font></td>").arg(color).arg(proj.date);
+        rc += QString::fromLatin1("<td><font color=\"%1\">%2</font></td>").arg(color).arg(proj.lastBuildUsername);
+        rc += QLatin1String("</tr>\n");
     }
-    rc +="</table>\n";
+    rc += QLatin1String("</table>\n");
 
     return rc;
 }
